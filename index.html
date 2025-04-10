@@ -202,9 +202,6 @@
     const url = `https://drive.google.com/file/d/${id}/preview`;
     console.log("PDF URL:", url); // เพิ่มบรรทัดนี้
     
-    // ลองเปิดลิงก์ในแท็บใหม่เพื่อทดสอบ
-    window.open(url, '_blank');
-    
     pdfFrame.src = url;
     
     if (branchInfo[id]) {
