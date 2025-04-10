@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>UNIQLO Store Location Survey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --uniqlo-red: #150463;
+      --uniqlo-dark: #333333;
+      --uniqlo-light: #F5F5F5;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    body {
+      font-family: 'Noto Sans Thai', 'Roboto', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: var(--uniqlo-light);
+      color: var(--uniqlo-dark);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    
+    header {
+      background-color: var(--uniqlo-red);
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    
+    .content {
+      padding: 30px;
+    }
+    
+    .branch-selector {
+      margin-bottom: 30px;
+    }
+    
+    .select-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    
+    .select-wrapper:after {
+      content: "▼";
+      font-size: 12px;
+      color: var(--uniqlo-red);
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+    
+    select {
+      width: 100%;
+      padding: 12px 15px;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      background-color: white;
+      appearance: none;
+      font-family: 'Noto Sans Thai', sans-serif;
+      transition: border-color 0.3s;
+    }
+    
+    select:focus {
+      outline: none;
+      border-color: var(--uniqlo-red);
+    }
+    
+    .pdf-container {
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      margin-top: 20px;
+      border: 1px solid #eee;
+    }
+    
+    iframe {
+      display: block;
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 50px;
+      color: #666;
+    }
+    
+    .branch-info {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      display: none;
+    }
+    
+    .branch-name {
+      font-weight: 700;
+      color: var(--uniqlo-red);
+      margin-bottom: 5px;
+    }
+    
+    @media (max-width: 768px) {
+      .content {
+        padding: 20px;
+      }
+      
+      iframe {
+        height: 400px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>UNIQLO STORE LOCATION SURVEY</h1>
+    </header>
+    
+    <div class="content">
+      <div class="branch-selector">
+        <div class="select-wrapper">
+          <select id="branch" onchange="showPDF()">
+            <option value="">-- กรุณาเลือกสาขา --</option>
+            <option value="1SIrI6WTDMvDLx91pQS8nv2yleKg2_CC-">สาขา Central World</option>
+            <option value="2ZXYmnoPQRSTuVw45678">สาขา Terminal 21</option>
+            <option value="3PDFidEXAMPLE456789">สาขา MBK Center</option>
+            <option value="4EXAMPLE789012345">สาขา Siam Paragon</option>
+            <option value="5SAMPLEID678901234">สาขา Emquartier</option>
+          </select>
+        </div>
+        
+        <div id="branchInfo" class="branch-info">
+          <div class="branch-name" id="branchName"></div>
+          <div id="branchAddress"></div>
+        </div>
+      </div>
+      
+      <div class="pdf-container">
+        <div id="loading" class="loading">กรุณาเลือกสาขาเพื่อแสดง Location Survey</div>
+        <iframe id="pdfFrame" src="" style="display: none;"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const branchInfo = {
+      "1SIrI6WTDMvDLx91pQS8nv2yleKg2_CC-": {
+        name: "UNIQLO Central World",
+        address: "999/9 Rama I Rd, Pathum Wan, Bangkok 10330"
+      },
+      "2ZXYmnoPQRSTuVw45678": {
+        name: "UNIQLO Terminal 21",
+        address: "88 Terminal 21 Sukhumvit, Khlong Toei, Bangkok 10110"
+      },
+      "3PDFidEXAMPLE456789": {
+        name: "UNIQLO MBK Center",
+        address: "444 Phaya Thai Rd, Pathum Wan, Bangkok 10330"
+      },
+      "4EXAMPLE789012345": {
+        name: "UNIQLO Siam Paragon",
+        address: "991 Rama I Rd, Pathum Wan, Bangkok 10330"
+      },
+      "5SAMPLEID678901234": {
+        name: "UNIQLO Emquartier",
+        address: "693 Sukhumvit Rd, Khlong Tan Nuea, Watthana, Bangkok 10110"
+      }
+    };
+
+    function showPDF() {
+  const id = document.getElementById("branch").value;
+  const pdfFrame = document.getElementById("pdfFrame");
+  const loading = document.getElementById("loading");
+  const infoContainer = document.getElementById("branchInfo");
+  const branchName = document.getElementById("branchName");
+  const branchAddress = document.getElementById("branchAddress");
+  
+  console.log("Selected ID:", id); // เพิ่มบรรทัดนี้เพื่อ debug
+  
+  if (id) {
+    const url = `https://drive.google.com/file/d/${id}/preview`;
+    console.log("PDF URL:", url); // เพิ่มบรรทัดนี้
+    
+    // ลองเปิดลิงก์ในแท็บใหม่เพื่อทดสอบ
+    window.open(url, '_blank');
+    
+    pdfFrame.src = url;
+    
+    if (branchInfo[id]) {
+      branchName.textContent = branchInfo[id].name;
+      branchAddress.textContent = branchInfo[id].address;
+      infoContainer.style.display = 'block';
+    }
+    
+    loading.style.display = 'none';
+    pdfFrame.style.display = 'block';
+    
+    // เพิ่ม event listener เพื่อตรวจสอบการโหลด
+    pdfFrame.onload = function() {
+      console.log("PDF loaded successfully");
+    };
+    
+    pdfFrame.onerror = function() {
+      console.error("Failed to load PDF");
+      loading.textContent = "ไม่สามารถโหลดไฟล์ PDF ได้ กรุณาตรวจสอบลิงก์";
+      loading.style.display = 'block';
+      pdfFrame.style.display = 'none';
+    };
+  } else {
+    pdfFrame.src = '';
+    loading.textContent = 'กรุณาเลือกสาขาเพื่อแสดง Location Survey';
+    loading.style.display = 'block';
+    pdfFrame.style.display = 'none';
+    infoContainer.style.display = 'none';
+  }
+}
+  </script>
+</body>
+</html>
