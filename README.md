@@ -1,1 +1,1 @@
-Dummy
+Location_survey_UNIQLO
